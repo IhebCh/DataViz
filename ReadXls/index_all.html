@@ -165,9 +165,14 @@
             }
             
             *{
-                font-family:monospace
+                font-family: "Ma Police"
             }
             
+            @font-face {
+                font-family: "Ma Police";
+              
+                src: url('Diavlo_LIGHT_II_37.otf');
+            }
             
         </style>
     </head>
@@ -183,9 +188,6 @@
             <div id="sidebar">
                 <button type="checkbox" id="audience" checked >Audience </button>
 
-
-
-
                 <div id="headListe">Les propriétaires des médias</div>
             <div id="listeRanking">
           
@@ -193,8 +195,8 @@
         
             </div>
         </div>
-        <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+        <script src="https://d3js.org/d3.v3.min.js"></script>
         <script>
 
 
@@ -310,8 +312,6 @@
                 display(root);
 
                
-                
-                
                 if (window.parent !== window) {
                     var myheight = document.documentElement.scrollHeight || document.body.scrollHeight;
                     window.parent.postMessage({height: myheight}, '*');
@@ -466,12 +466,28 @@
                             critere = 'pourcentage' ; 
                         }
                         
-                        children.data(function(d) { return d._children || [d]; }).selectAll("g").on('mouseover',MouseOverMap)
-                            .on('mouseout',mouseOutMap )
-                              console.log(root.key+"++ "+root._children[0].key+"  -  "+root._children[0].value);
+                        var racine =root;
 
-                        accumulate(root);
-                        additionne(root);
+                        if(typeof root.parent !="undefined"){
+                            racine = root.parent ;
+
+                            if(typeof racine.parent !="undefined"){
+                                racine = racine.parent ; 
+                            }
+                        }
+
+                        accumulate(racine);
+                        additionne(racine);
+                        
+                        children.selectAll("g").on('mouseover',MouseOverMap)
+                            .on('mouseout',mouseOutMap )
+                        
+                              console.log(root.key+"++ "+root._children[0].key+"  -  "+root._children[0].value);
+                        
+                        
+                       
+                        
+                       
 
                             console.log(root.key+"++ "+root._children[0].key+"  -  "+root._children[0].value);
                             //children.sort(function(b,b){return a.value-b.value})
@@ -529,9 +545,10 @@
                         if (transitioning || !d) return;
                         transitioning = true;
                        
-                        if (typeof d._children[0]._children[0]._children ==  "undefined")
+                        if(typeof d.parent ==  "undefined")
+                            d3.select("#headListe").text("Les propriétaires des médias");
+                        else if (typeof d._children[0]._children[0]._children ==  "undefined")
                             d3.select("#headListe").text("Les propriétées de "+d.key);
-                        else  d3.select("#headListe").text("Les propriétaires des médias");
                         
                         var g2 = display(d),
                             t1 = g1.transition().duration(400),
@@ -589,10 +606,10 @@
                             if(critere=="audience")
                             {
                                 var valeur = (d.value/d._value)*100 ;
-                                rate = "   (" + d3.format(".2f")(valeur) + "%)" ; 
+                                rate = " détient   (" + d3.format(".2f")(valeur) + "%)" ; 
                             }
                             else                           
-                                rate = "   (" + d3.format(".2f")(100*d.value) + "%)" ; 
+                                rate = " détient  (" + d3.format(".2f")(100*d.value) + "%)" ; 
 
                         }
                         // console.log("children   "+ d.key+"  "+rate);
@@ -604,7 +621,7 @@
                             if(d._children[0]._children==null)
                                 return d.key + " :   "+rate ;
                         else 
-                            return d.key + " :   "+d3.format(".0f")(d._value) +rate ;
+                            return d.key + " :   "+d3.format(".0f")(d._value)  ;
                     }
                    
                     function listeStyle(d){
@@ -612,10 +629,22 @@
                             .sort(function(a, b) {
                                 return  a.value-b.value; })
                             .text(function(d,i) { 
-                                return critere == "audience" ?  d.parent._children.length-i+". "+d.key+" :  "+d3.format(".0f")(d.value) :       
+                            if(d._children[0]._children==null){
+                                var valeur = (d.value/d._value)*100 ;
+                                
+                            return critere == "audience" ?  d.parent._children.length-i+". "+d.key+" :  "+d3.format(".0f")(d.value)+" ~ "
+                                + d3.format(".2f")(valeur) +"%" :       
+                            
                             d.parent._children.length-i+". "+d.key+" :  "+d._value+" ~ "
-                                + d3.format(".2f")(100*d.value/d._value) +"%" }
+                                + d3.format(".2f")(100*d.value) +"%"   
+                        }else{
+                            return critere == "audience" ?  d.parent._children.length-i+". "+d.key+" :  "+d3.format(".0f")(d.value)+" ~ "
+                                + d3.format(".2f")(100*d.value/d.parent.value) +"%" :       
 
+                            d.parent._children.length-i+". "+d.key+" :  "+d._value+" ~ "
+                                + d3.format(".2f")(100*d.value/d.parent.value) +"%"   }
+                    
+                        }
                                  )
                         
 
@@ -654,7 +683,7 @@
 
                                 d3.select(child[z]).selectAll("rect").style("fill-opacity","0.8");
                                 d3.select(child[z]).selectAll("text").style("fill-opacity","1");
-                              d3.select(child[z]).selectAll("rect").style("stroke",null);
+                                d3.select(child[z]).selectAll("rect").style("stroke",null);
                                 d3.select(child[z]).selectAll("rect").style("stroke-opacity",1);
                              
                                 d3.select(child[z]).selectAll("text").style("font-weight","normal") ;
@@ -694,12 +723,12 @@
                                 {
                                     console.log("k="+k+"  z="+z+" child[z]= "+child[z].key+"  === "+children[k][z].__data__.key)
 
-                                    scaleRect(child[z].__data__,child[z],"1.05");
+                                    scaleRect(child[z].__data__,child[z],"1.02");
                                    
                                     d3.select(child[z]).selectAll("rect").style("fill-opacity","1");
                                     d3.select(child[z]).selectAll("rect").style("stroke","#000");
                                     d3.select(child[z]).selectAll("rect").style("stroke-opacity",1);
-                                    d3.select(child[z]).selectAll("text").style("font-weight","bolder") ;
+                                    d3.select(child[z]).selectAll("text").style("font-weight","bold") ;
                                     d3.select(child[z]).selectAll("text").call(text2) ;
 
                                     //  d3.select(children[k][z]).selectAll("rect").style("fill","#000");
@@ -742,8 +771,9 @@
 
                 function text2(text) {
                     text.transition()
-                        .duration(600).attr("x", function(d) { return x(d.x + d.dx) - this.getComputedTextLength() - 6; })
-                        .attr("y", function(d) { return y(d.y + d.dy) - 2; })
+                        .duration(600).attr("transform", function(d) {
+                            return "translate(" + (x(d.x + d.dx) - this.getComputedTextLength() - 6) + "," + (y(d.y + d.dy) - 2) + ")"; })
+                    
                         .style("opacity", function(d) { return this.getComputedTextLength() < x(d.x + d.dx) - x(d.x) && 
 
                                 parseInt(window.getComputedStyle(this).fontSize, 0) < y(d.y + d.dy) - y(d.y) ? 1 : 0; });

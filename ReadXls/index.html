@@ -165,9 +165,14 @@
             }
             
             *{
-                font-family: "30px Open Sans"
+                font-family: "Ma Police"
             }
             
+            @font-face {
+                font-family: "Ma Police";
+              
+                src: url('Diavlo_LIGHT_II_37.otf');
+            }
             
         </style>
     </head>
@@ -682,7 +687,7 @@
 
                                 d3.select(child[z]).selectAll("rect").style("fill-opacity","0.8");
                                 d3.select(child[z]).selectAll("text").style("fill-opacity","1");
-                              d3.select(child[z]).selectAll("rect").style("stroke",null);
+                                d3.select(child[z]).selectAll("rect").style("stroke",null);
                                 d3.select(child[z]).selectAll("rect").style("stroke-opacity",1);
                              
                                 d3.select(child[z]).selectAll("text").style("font-weight","normal") ;
@@ -727,7 +732,7 @@
                                     d3.select(child[z]).selectAll("rect").style("fill-opacity","1");
                                     d3.select(child[z]).selectAll("rect").style("stroke","#000");
                                     d3.select(child[z]).selectAll("rect").style("stroke-opacity",1);
-                                    d3.select(child[z]).selectAll("text").style("font-weight","bolder") ;
+                                    d3.select(child[z]).selectAll("text").style("font-weight","bold") ;
                                     d3.select(child[z]).selectAll("text").call(text2) ;
 
                                     //  d3.select(children[k][z]).selectAll("rect").style("fill","#000");
@@ -770,8 +775,9 @@
 
                 function text2(text) {
                     text.transition()
-                        .duration(600).attr("x", function(d) { return x(d.x + d.dx) - this.getComputedTextLength() - 6; })
-                        .attr("y", function(d) { return y(d.y + d.dy) - 2; })
+                        .duration(600).attr("transform", function(d) {
+                            return "translate(" + (x(d.x + d.dx) - this.getComputedTextLength() - 6) + "," + (y(d.y + d.dy) - 2) + ")"; })
+                    
                         .style("opacity", function(d) { return this.getComputedTextLength() < x(d.x + d.dx) - x(d.x) && 
 
                                 parseInt(window.getComputedStyle(this).fontSize, 0) < y(d.y + d.dy) - y(d.y) ? 1 : 0; });
